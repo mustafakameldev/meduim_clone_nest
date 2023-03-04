@@ -1,7 +1,7 @@
 import { TagEntity } from '@app/tag/tag.entity';
-import { DataSourceOptions } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
-const ormconfig: DataSourceOptions = {
+const ormconfig = new DataSource({
   type: 'postgres',
   host: 'localhost',
   port: 5432,
@@ -10,7 +10,7 @@ const ormconfig: DataSourceOptions = {
   database: 'mediumclone',
   entities: [__dirname + '/**/*.entity{.ts, .js}'],
   synchronize: false,
-  migrations: [__dirname + '/migrations/**/*.{.ts , .js}'],
-};
+  migrations: ['src/migrations/**/*{.ts,.js}'],
+});
 
 export default ormconfig;
