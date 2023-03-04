@@ -1,6 +1,6 @@
-import { ConnectionOptions } from 'typeorm';
+import { DataSource } from 'typeorm';
 
-const ormconfig: ConnectionOptions = {
+const migrationconfig = new DataSource({
   type: 'postgres',
   host: 'localhost',
   port: 5432,
@@ -10,6 +10,6 @@ const ormconfig: ConnectionOptions = {
   entities: [__dirname + '/**/*.entity{.ts, .js}'],
   synchronize: false,
   migrations: ['src/migrations/**/*{.ts,.js}'],
-};
+});
 
-export default ormconfig;
+export default migrationconfig;
