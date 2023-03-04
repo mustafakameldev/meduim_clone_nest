@@ -14,7 +14,8 @@ export class User {
 
   @Column()
   password: string;
-
+  @Column()
+  username: string;
   @BeforeInsert()
   async hashPassword() {
     this.password = await hash(this.password, 10);
