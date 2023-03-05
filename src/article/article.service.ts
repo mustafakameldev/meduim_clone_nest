@@ -47,4 +47,8 @@ export class ArticleService {
       relations: { author: true },
     });
   }
+
+  async deleteArticle(id: number) {
+    return await this.repo.delete(id);
+  }
 }

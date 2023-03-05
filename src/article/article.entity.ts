@@ -45,6 +45,6 @@ export class ArticleEntity {
   onCreation() {
     this.createdAt = new Date();
   }
-  @ManyToOne(() => User, (user) => user.articles)
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
   author: User;
 }
