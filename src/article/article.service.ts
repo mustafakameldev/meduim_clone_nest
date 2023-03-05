@@ -51,4 +51,8 @@ export class ArticleService {
   async deleteArticle(id: number) {
     return await this.repo.delete(id);
   }
+  async updateArticle(article: ArticleEntity, attrs: Partial<ArticleEntity>) {
+    Object.assign(article, attrs);
+    return await this.repo.save(article);
+  }
 }

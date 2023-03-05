@@ -2,13 +2,13 @@ import { IsEmail, IsString } from 'class-validator';
 
 export class UpdateUserDto {
   @IsEmail()
-  readonly email: string;
+  readonly email?: string;
   @IsString()
-  readonly password: string;
+  readonly password?: string;
   @IsString()
-  readonly bio: string;
+  readonly bio?: string;
   @IsString()
-  image: string;
+  image?: string;
   @IsString()
-  username: string;
+  username?: string;
 }
