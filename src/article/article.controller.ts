@@ -10,12 +10,14 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dtos/create-article.dto';
+import { UpdateArticleDto } from './dtos/update-article.dto';
 
 @Controller('article')
 export class ArticleController {
@@ -59,5 +61,26 @@ export class ArticleController {
     return {
       message: 'Article removed successfully',
     };
+  }
+
+  @Put('/:id')
+  @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
+  async updateArticle(
+    @Body() body: UpdateArticleDto,
+    @Param('id') id: string,
+    @UserDecorator() user: User,
+  ) {
+    const article = await this.service.findById(parseInt(id));
+    if (!article) {
+      throw new HttpException('Article not found ', HttpStatus.NOT_FOUND);
+    }
+    if (user.id !== article.author.id) {
+      throw new HttpException(
+        'You are not authorized for this operation',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    return await this.service.updateArticle(article, body);
   }
 }
