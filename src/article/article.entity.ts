@@ -1,8 +1,10 @@
+import { User } from '../user/user.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -11,7 +13,7 @@ export class ArticleEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ default: '' })
   slug: string;
 
   @Column()
@@ -43,4 +45,6 @@ export class ArticleEntity {
   onCreation() {
     this.createdAt = new Date();
   }
+  @ManyToOne(() => User, (user) => user.articles)
+  author: User;
 }
