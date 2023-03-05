@@ -64,4 +64,9 @@ export class UserService {
     delete user.password;
     return user;
   }
+
+  async findById(id: number): Promise<User> {
+    const user = await this.userRepo.findOneBy({ id });
+    return user;
+  }
 }
