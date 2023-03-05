@@ -9,6 +9,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { UserDecorator } from './decorators/user.decorrator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { SignInDto } from './dtos/signin.dto';
 import { UserResponseInterface } from './types/userResponse.interface';
@@ -36,9 +37,8 @@ export class UserController {
 
   @Get('user')
   async currentUser(
-    @Req() request: ExpressRequest,
+    @UserDecorator() user: User,
   ): Promise<UserResponseInterface> {
-    console.log('res42', request.user);
-    return this.userService.buildUserResponse(request.user);
+    return this.userService.buildUserResponse(user);
   }
 }
