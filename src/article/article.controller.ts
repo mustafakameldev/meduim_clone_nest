@@ -115,4 +115,9 @@ export class ArticleController {
   ): Promise<ArticleEntity> {
     return await this.service.removeFavorite(slug, currentUserId);
   }
+
+  @Get('/author/:id')
+  async getUserArticles(@Param('id') id: string, @Query() query: any) {
+    return this.service.findUserArticles(parseInt(id), query);
+  }
 }

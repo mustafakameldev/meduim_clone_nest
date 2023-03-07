@@ -2,7 +2,7 @@ import { User } from '@app/user/user.entity';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import slugify from 'slugify';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ArticleEntity } from './article.entity';
 import { CreateArticleDto } from './dtos/create-article.dto';
 import { ArticlesResponseInterface } from './types/articlesResponse.interface';
@@ -122,5 +122,32 @@ export class ArticleService {
       await this.repo.save(article);
     }
     return article;
+  }
+
+  async findUserArticles(
+    userId: number,
+    query: any,
+  ): Promise<ArticlesResponseInterface> {
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { favorites: true },
+    });
+    const ids = user.favorites.map((el) => el.id);
+    console.log('ifd', ids);
+    const articles = await this.repo.findAndCount({
+      relations: { author: true },
+      where: [
+        {
+          author: query.authorId ? { id: query.authorId } : undefined,
+        },
+        {
+          id: In(ids),
+        },
+      ],
+      take: query?.limit ? query.limit : 10,
+      skip: query?.offset ? query?.offset : 0,
+      order: { createdAt: query?.orderBy ? query?.orderBy : undefined },
+    });
+    return { articles: articles[0], articlesCount: articles[1] };
   }
 }
