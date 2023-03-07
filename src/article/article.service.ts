@@ -1,10 +1,11 @@
 import { User } from '@app/user/user.entity';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import slugify from 'slugify';
 import { Repository } from 'typeorm';
 import { ArticleEntity } from './article.entity';
 import { CreateArticleDto } from './dtos/create-article.dto';
+import { ArticlesResponseInterface } from './types/articlesResponse.interface';
 
 @Injectable()
 export class ArticleService {
@@ -12,6 +13,22 @@ export class ArticleService {
     @InjectRepository(ArticleEntity)
     private readonly repo: Repository<ArticleEntity>,
   ) {}
+
+  async findAll(
+    authorId: number,
+    query: any,
+  ): Promise<ArticlesResponseInterface> {
+    const articles = await this.repo.findAndCount({
+      relations: { author: true },
+      where: {
+        author: query.authorId ? { id: query.authorId } : undefined,
+      },
+      take: query?.limit ? query.limit : 10,
+      skip: query?.offset ? query?.offset : 0,
+      order: { createdAt: query?.orderBy ? query?.orderBy : undefined },
+    });
+    return { articles: articles[0], articlesCount: articles[1] };
+  }
 
   async createArticle(
     currentUser: User,
