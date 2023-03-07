@@ -15,10 +15,11 @@ export class ArticleService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
-  async findAll(
-    authorId: number,
-    query: any,
-  ): Promise<ArticlesResponseInterface> {
+  async findAll(id: number, query: any): Promise<ArticlesResponseInterface> {
+    const user = await this.userRepo.findOne({
+      where: { id },
+      relations: { favorites: true },
+    });
     const articles = await this.repo.findAndCount({
       relations: { author: true },
       where: {
@@ -28,7 +29,16 @@ export class ArticleService {
       skip: query?.offset ? query?.offset : 0,
       order: { createdAt: query?.orderBy ? query?.orderBy : undefined },
     });
-    return { articles: articles[0], articlesCount: articles[1] };
+    const ids = user.favorites.map((el) => el.id);
+
+    const articlesWithFavorite = articles[0].map((article) => {
+      const favorited = ids.includes(article.id);
+      return { ...article, favorited };
+    });
+    return {
+      articles: articlesWithFavorite,
+      articlesCount: articles[1],
+    } as any;
   }
 
   async createArticle(
@@ -133,7 +143,6 @@ export class ArticleService {
       relations: { favorites: true },
     });
     const ids = user.favorites.map((el) => el.id);
-    console.log('ifd', ids);
     const articles = await this.repo.findAndCount({
       relations: { author: true },
       where: [
