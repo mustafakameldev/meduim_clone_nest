@@ -1,5 +1,5 @@
 import { User } from '@app/user/user.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import slugify from 'slugify';
 import { Repository } from 'typeorm';
@@ -12,6 +12,7 @@ export class ArticleService {
   constructor(
     @InjectRepository(ArticleEntity)
     private readonly repo: Repository<ArticleEntity>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
   async findAll(
@@ -71,5 +72,55 @@ export class ArticleService {
   async updateArticle(article: ArticleEntity, attrs: Partial<ArticleEntity>) {
     Object.assign(article, attrs);
     return await this.repo.save(article);
+  }
+  async addArticleToFavorites(
+    slug: string,
+    currentUserId: number,
+  ): Promise<ArticleEntity> {
+    const article = await this.findBySlug(slug);
+    const user = await this.userRepo.findOne({
+      where: { id: currentUserId },
+      relations: { favorites: true },
+    });
+
+    if (!article || !user) {
+      throw new HttpException(
+        'User of product are not found ',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const isNotFavorite = user.favorites?.findIndex(
+      (item) => item.id === article.id,
+    );
+    if (isNotFavorite === -1) {
+      user.favorites.push(article);
+      article.favoriteCount++;
+      await this.userRepo.save(user);
+      await this.repo.save(article);
+    }
+    return article;
+  }
+  async removeFavorite(
+    slug: string,
+    currentUserId: number,
+  ): Promise<ArticleEntity> {
+    const article = await this.findBySlug(slug);
+    const user = await this.userRepo.findOne({
+      where: { id: currentUserId },
+      relations: { favorites: true },
+    });
+    if (!article) {
+      throw new HttpException('Article not found', HttpStatus.NOT_FOUND);
+    }
+    const articleIndex = user.favorites.findIndex(
+      (item) => item.id === article.id,
+    );
+    if (articleIndex >= 0) {
+      user.favorites.splice(articleIndex, 1);
+      article.favoriteCount--;
+      await this.userRepo.save(user);
+      await this.repo.save(article);
+    }
+    return article;
   }
 }

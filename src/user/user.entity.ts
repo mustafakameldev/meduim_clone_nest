@@ -3,6 +3,8 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -23,6 +25,9 @@ export class User {
   password: string;
   @Column()
   username: string;
+  @ManyToMany(() => ArticleEntity)
+  @JoinTable()
+  favorites: ArticleEntity[];
   @BeforeInsert()
   async hashPassword() {
     this.password = await hash(this.password, 10);

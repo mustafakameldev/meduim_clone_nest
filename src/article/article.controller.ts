@@ -16,6 +16,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { ArticleEntity } from './article.entity';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dtos/create-article.dto';
 import { UpdateArticleDto } from './dtos/update-article.dto';
@@ -91,5 +92,27 @@ export class ArticleController {
       );
     }
     return await this.service.updateArticle(article, body);
+  }
+
+  @Post('/:slug/favorite')
+  @UseGuards(AuthGuard)
+  async addArticleToFavorites(
+    @Param('slug') slug: string,
+    @UserDecorator('id') currentUserId: number,
+  ) {
+    const article = await this.service.addArticleToFavorites(
+      slug,
+      currentUserId,
+    );
+    return article;
+  }
+
+  @Delete('/:slug/favorite')
+  @UseGuards(AuthGuard)
+  async deleteArticleFromFavorites(
+    @Param('slug') slug: string,
+    @UserDecorator('id') currentUserId: number,
+  ): Promise<ArticleEntity> {
+    return await this.service.removeFavorite(slug, currentUserId);
   }
 }
