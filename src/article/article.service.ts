@@ -1,3 +1,4 @@
+import { FollowEntity } from '@app/profile/follow.entity';
 import { User } from '@app/user/user.entity';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,6 +14,8 @@ export class ArticleService {
     @InjectRepository(ArticleEntity)
     private readonly repo: Repository<ArticleEntity>,
     @InjectRepository(User) private readonly userRepo: Repository<User>,
+    @InjectRepository(FollowEntity)
+    private readonly followRepo: Repository<FollowEntity>,
   ) {}
 
   async findAll(id: number, query: any): Promise<ArticlesResponseInterface> {
@@ -157,6 +160,29 @@ export class ArticleService {
       skip: query?.offset ? query?.offset : 0,
       order: { createdAt: query?.orderBy ? query?.orderBy : undefined },
     });
+    return { articles: articles[0], articlesCount: articles[1] };
+  }
+
+  async getFeed(
+    userId: number,
+    query: any,
+  ): Promise<ArticlesResponseInterface> {
+    const follows = await this.followRepo.findBy({ followerId: userId });
+    if (follows?.length == 0) {
+      return { articles: [], articlesCount: 0 };
+    }
+    const followers = follows.map((item) => item.followingId);
+    const articles = await this.repo.findAndCount({
+      relations: { author: true },
+      where: [
+        {
+          author: { id: In(followers) },
+        },
+      ],
+      take: query?.limit ? query.limit : 10,
+      skip: query?.offset ? query?.offset : 0,
+    });
+
     return { articles: articles[0], articlesCount: articles[1] };
   }
 }

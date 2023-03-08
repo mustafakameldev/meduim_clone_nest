@@ -1,3 +1,4 @@
+import { BackendValidationPipe } from '@app/shared/pipes/backendValidation.pipe';
 import { UserDecorator } from '@app/user/decorators/user.decorrator';
 import { AuthGuard } from '@app/user/guards/user.guard';
 import { User } from '@app/user/user.entity';
@@ -14,7 +15,6 @@ import {
   Query,
   UseGuards,
   UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ArticleEntity } from './article.entity';
 import { ArticleService } from './article.service';
@@ -35,7 +35,7 @@ export class ArticleController {
   }
   @Post()
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async createArticle(
     @UserDecorator() currentUser: User,
     @Body() body: CreateArticleDto,
@@ -75,7 +75,7 @@ export class ArticleController {
 
   @Put('/:id')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async updateArticle(
     @Body() body: UpdateArticleDto,
     @Param('id') id: string,
@@ -119,5 +119,13 @@ export class ArticleController {
   @Get('/author/:id')
   async getUserArticles(@Param('id') id: string, @Query() query: any) {
     return this.service.findUserArticles(parseInt(id), query);
+  }
+  @Get('/followed/user')
+  @UseGuards(AuthGuard)
+  async getFeed(
+    @Query() query: any,
+    @UserDecorator('id') userId: number,
+  ): Promise<ArticlesResponseInterface> {
+    return await this.service.getFeed(userId, query);
   }
 }

@@ -19,11 +19,24 @@ export class UserService {
     const userByUserName = await this.userRepo.findOneBy({
       username: userDto.username,
     });
+    const errorResponse = {
+      errors: {},
+    };
+    // if (userByEmail || userByUserName) {
+    //   throw new HttpException(
+    //     'Email or username are taken ',
+    //     HttpStatus.UNPROCESSABLE_ENTITY,
+    //   );
+    // }
+    if (userByEmail) {
+      errorResponse.errors['email'] = 'Email has been already taken';
+    }
+    if (userByUserName) {
+      errorResponse.errors['username'] = 'Username has been already taken';
+    }
+
     if (userByEmail || userByUserName) {
-      throw new HttpException(
-        'Email or username are taken ',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
+      throw new HttpException(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
     const newUser = new User();
     Object.assign(newUser, userDto);
@@ -47,20 +60,17 @@ export class UserService {
     const user = await this.userRepo.findOneBy({
       email: body.email,
     });
+    const errorResponse = {
+      errors: { 'email or password:': 'is invalid  ' },
+    };
     const newUser = new User();
     Object.assign(newUser, user);
     if (!user) {
-      throw new HttpException(
-        "Could n't find this email ",
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException(errorResponse, HttpStatus.NOT_FOUND);
     }
     const isPasswordCorrect = await compare(body.password, user.password);
     if (!isPasswordCorrect) {
-      throw new HttpException(
-        'Credentials not correct',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
+      throw new HttpException(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
     delete user.password;
     return user;
