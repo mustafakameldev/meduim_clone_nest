@@ -19,6 +19,7 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get('/:username')
+  @UseGuards(AuthGuard)
   async getProfileByUserName(
     @UserDecorator('id') currentUserId: number,
     @Param('username') username: string,
