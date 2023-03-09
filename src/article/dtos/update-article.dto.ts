@@ -1,11 +1,19 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateArticleDto {
   @IsString()
+  @IsOptional()
   title: string;
-  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
   description: string;
   @IsNotEmpty()
+  @IsOptional()
   body: string;
+  @IsOptional()
+  @IsArray()
   readonly tagList?: string[];
+  @IsOptional()
+  @IsString()
+  bio: string;
 }
