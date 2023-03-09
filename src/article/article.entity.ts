@@ -1,10 +1,13 @@
+import { CommentEntity } from '../comment/comment.entity';
 import { User } from '../user/user.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -47,4 +50,6 @@ export class ArticleEntity {
   }
   @ManyToOne(() => User, (user) => user.articles, { eager: true })
   author: User;
+  @OneToMany(() => CommentEntity, (comment) => comment.article, { eager: true })
+  comments: CommentEntity[];
 }
