@@ -13,8 +13,10 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ProfileService } from './profile.service';
 import { ProfileResponseInterface } from './types/ProfileResponse.interface';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('profiles')
+@ApiTags('Profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 

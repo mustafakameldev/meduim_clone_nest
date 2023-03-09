@@ -19,8 +19,10 @@ import { AuthGuard } from './guards/user.guard';
 import { UserResponseInterface } from './types/userResponse.interface';
 import { User } from './user.entity';
 import { UserService } from './user.service';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
+@ApiTags('Auth')
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Post('users')
