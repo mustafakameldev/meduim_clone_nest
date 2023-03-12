@@ -5,7 +5,7 @@ const ormconfig: ConnectionOptions = {
   host: 'localhost',
   port: 5432,
   username: 'postgres',
-  password: 'MosPro100',
+  password: 'LocalHost',
   database: 'mediumclone',
   entities: [__dirname + '/**/*.entity{.ts, .js}'],
   synchronize: false,
